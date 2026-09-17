@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+/* Disable dark mode variant */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Lato', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-script: 'Great Vibes', cursive;
+
+  /* Primary Light & Ivory */
+  --color-ivory: #FAF9F6;
+  --color-ivory-50: #FFFFFF;
+  --color-ivory-100: #FAF9F6;
+  --color-ivory-200: #F4F1EA;
+  --color-ivory-300: #EBE5D8;
+  --color-primary-light: #FAF9F6;
+
+  /* Blush Pink Palette (#F7CAC9) */
+  --color-blush: #F7CAC9;
+  --color-blush-50: #FFF6F6;
+  --color-blush-100: #FDEEEE;
+  --color-blush-200: #FBDFDE;
+  --color-blush-300: #F7CAC9;
+  --color-blush-400: #F1A7A6;
+  --color-blush-500: #E6807F;
+  --color-blush-600: #D35D5C;
+  --color-blush-700: #B14645;
+  --color-blush-800: #933C3B;
+  --color-blush-900: #7A3635;
+  --color-blush-950: #421A1A;
+
+  /* Gold Palette (#D4AF37) */
+  --color-gold: #D4AF37;
+  --color-gold-50: #FBF9EF;
+  --color-gold-100: #F6F1DB;
+  --color-gold-200: #EEE1B7;
+  --color-gold-300: #E2CC89;
+  --color-gold-400: #D8B75C;
+  --color-gold-500: #D4AF37;
+  --color-gold-600: #B89028;
+  --color-gold-700: #936E22;
+  --color-gold-800: #7A5822;
+  --color-gold-900: #674A21;
+  --color-gold-950: #3C280F;
+
+  /* Charcoal Palette (#333333) */
+  --color-charcoal: #333333;
+  --color-charcoal-50: #F8F8F8;
+  --color-charcoal-100: #EFEFEF;
+  --color-charcoal-200: #DCDCDC;
+  --color-charcoal-300: #BDBDBD;
+  --color-charcoal-400: #888888;
+  --color-charcoal-500: #555555;
+  --color-charcoal-600: #444444;
+  --color-charcoal-700: #333333;
+  --color-charcoal-800: #222222;
+  --color-charcoal-900: #111111;
+
+  /* Map forest & sage tokens to luxury Gold & Blush for harmony */
+  --color-forest-50: #FBF9EF;
+  --color-forest-100: #F6F1DB;
+  --color-forest-200: #EEE1B7;
+  --color-forest-300: #E2CC89;
+  --color-forest-400: #D8B75C;
+  --color-forest-500: #D4AF37;
+  --color-forest-600: #B89028;
+  --color-forest-700: #936E22;
+  --color-forest-800: #7A5822;
+  --color-forest-900: #674A21;
+  --color-forest-950: #3C280F;
+
+  --color-sage-50: #FFF6F6;
+  --color-sage-100: #FDEEEE;
+  --color-sage-200: #FBDFDE;
+  --color-sage-300: #F7CAC9;
+  --color-sage-400: #F1A7A6;
+  --color-sage-500: #E6807F;
+  --color-sage-600: #D35D5C;
+  --color-sage-700: #B14645;
+  --color-sage-800: #933C3B;
+  --color-sage-900: #7A3635;
+  --color-sage-950: #421A1A;
+}
+
+/* Base and Utility Classes */
+body {
+  font-family: var(--font-sans);
+  color: var(--color-charcoal);
+  background-color: var(--color-ivory);
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: var(--font-serif);
+}
+
+.font-script {
+  font-family: var(--font-script);
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.font-sans {
+  font-family: var(--font-sans);
+}
