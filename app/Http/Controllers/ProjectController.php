@@ -30,13 +30,31 @@ class ProjectController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        if ($request->has('total_budget')) {
+            $cleanBudget = is_string($request->total_budget)
+                ? str_replace(['.', ','], '', $request->total_budget)
+                : $request->total_budget;
+            $request->merge(['total_budget' => $cleanBudget]);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'wedding_date' => 'required|date',
             'total_budget' => 'required|numeric|min:0',
-            'pengantin_name' => 'required|string|max:255',
-            'pengantin_email' => 'required|string|email|max:255|unique:users,email',
-            'pengantin_password' => 'required|string|min:8',
+            'pengantin_name' => 'nullable|required_with:pengantin_email,pengantin_password|string|max:255',
+            'pengantin_email' => 'nullable|required_with:pengantin_name,pengantin_password|string|email|max:255|unique:users,email',
+            'pengantin_password' => 'nullable|required_with:pengantin_name,pengantin_email|string|min:8',
+        ], [
+            'name.required' => 'Nama judul project pernikahan wajib diisi.',
+            'wedding_date.required' => 'Tanggal pernikahan wajib diisi.',
+            'total_budget.required' => 'Total anggaran wajib diisi.',
+            'total_budget.numeric' => 'Total anggaran harus berupa angka.',
+            'pengantin_name.required_with' => 'Nama akun pengantin wajib diisi jika membuat akun pengantin.',
+            'pengantin_email.required_with' => 'Email pengantin wajib diisi jika membuat akun pengantin.',
+            'pengantin_email.email' => 'Format email pengantin tidak valid.',
+            'pengantin_email.unique' => 'Email pengantin ini sudah terdaftar di sistem. Silakan gunakan email lain.',
+            'pengantin_password.required_with' => 'Kata sandi pengantin wajib diisi jika membuat akun pengantin.',
+            'pengantin_password.min' => 'Kata sandi pengantin minimal 8 karakter.',
         ]);
 
         $slug = Str::slug($request->name);
@@ -54,18 +72,20 @@ class ProjectController extends Controller
             'total_budget' => $request->total_budget,
         ]);
 
-        // Create the pengantin account and attach it to the project
-        $pengantin = User::create([
-            'name' => $request->pengantin_name,
-            'email' => $request->pengantin_email,
-            'password' => Hash::make($request->pengantin_password),
-            'role' => 'pengantin',
-        ]);
+        // Create the pengantin account if provided and attach it to the project
+        if ($request->filled('pengantin_email')) {
+            $pengantin = User::create([
+                'name' => $request->pengantin_name,
+                'email' => $request->pengantin_email,
+                'password' => Hash::make($request->pengantin_password),
+                'role' => 'pengantin',
+                'is_active' => true,
+            ]);
 
-        $project->users()->attach($pengantin->id, ['role' => 'pengantin']);
+            $project->users()->attach($pengantin->id, ['role' => 'pengantin']);
+        }
 
-        // Admin is not a project member; send back to the project list
-        return redirect()->route('projects.index');
+        return redirect()->route('projects.index')->with('success', 'Project pernikahan berhasil dibuat.');
     }
 
     public function show(Project $project)
@@ -108,6 +128,13 @@ class ProjectController extends Controller
     {
         if (!$project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
+        }
+
+        if ($request->has('total_budget')) {
+            $cleanBudget = is_string($request->total_budget)
+                ? str_replace(['.', ','], '', $request->total_budget)
+                : $request->total_budget;
+            $request->merge(['total_budget' => $cleanBudget]);
         }
 
         $request->validate([

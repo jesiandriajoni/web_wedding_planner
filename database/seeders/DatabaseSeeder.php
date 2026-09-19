@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,31 +17,43 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'role' => 'pengantin',
-        ]);
+        // 1. Akun Admin
+        User::updateOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin Wedding',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'role' => 'admin',
-        ]);
+        // 2. Akun Pengantin
+        $pengantin = User::updateOrCreate(
+            ['email' => 'pengantin@example.com'],
+            [
+                'name' => 'Pengantin User',
+                'password' => Hash::make('password'),
+                'role' => 'pengantin',
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Pengantin User',
-            'email' => '    ',
-            'role' => 'pengantin',
-        ]);
+        // 3. Project Sample
+        $project = Project::firstOrCreate(
+            ['slug' => 'rose-wedding-sample'],
+            [
+                'name' => 'Rose Wedding Sample',
+                'wedding_date' => '2026-10-10',
+                'total_budget' => 150000000.00,
+                'groom_name' => 'Romeo',
+                'bride_name' => 'Juliet',
+                'invitation_template' => 'romantic-luxury',
+                'is_published' => true,
+            ]
+        );
 
-        $project = \App\Models\Project::create([
-            'name' => 'Rose Wedding Sample',
-            'slug' => 'rose-wedding-sample',
-            'wedding_date' => '2026-10-10',
-            'total_budget' => 150000000.00
-        ]);
-
-        $project->users()->attach($user->id, ['role' => 'pengantin']);
+        if (!$project->users()->where('user_id', $pengantin->id)->exists()) {
+            $project->users()->attach($pengantin->id, ['role' => 'pengantin']);
+        }
     }
 }
+

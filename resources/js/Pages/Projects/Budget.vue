@@ -64,16 +64,53 @@ const totalRemainingPayment = computed(() => {
 });
 
 const showBudgetEditModal = ref(false);
+const formattedBudgetEdit = ref('');
+
 const budgetForm = useForm({
     name: props.project.name,
     wedding_date: props.project.wedding_date,
     total_budget: props.project.total_budget
 });
 
+const onBudgetEditInput = (e) => {
+    const el = e.target;
+    const oldVal = el.value;
+    const oldSelection = el.selectionEnd || 0;
+    const digitsBeforeCursor = oldVal.slice(0, oldSelection).replace(/\D/g, '').length;
+
+    const raw = oldVal.replace(/\D/g, '');
+    if (!raw) {
+        formattedBudgetEdit.value = '';
+        budgetForm.total_budget = '';
+        return;
+    }
+
+    const numericVal = parseInt(raw, 10);
+    budgetForm.total_budget = numericVal;
+    const formatted = new Intl.NumberFormat('id-ID').format(numericVal);
+    formattedBudgetEdit.value = formatted;
+
+    requestAnimationFrame(() => {
+        let newPos = formatted.length;
+        let digitsCounted = 0;
+        for (let i = 0; i < formatted.length; i++) {
+            if (/\d/.test(formatted[i])) {
+                digitsCounted++;
+            }
+            if (digitsCounted === digitsBeforeCursor) {
+                newPos = i + 1;
+                break;
+            }
+        }
+        el.setSelectionRange(newPos, newPos);
+    });
+};
+
 const openBudgetEditModal = () => {
     budgetForm.name = props.project.name;
     budgetForm.wedding_date = props.project.wedding_date;
     budgetForm.total_budget = props.project.total_budget;
+    formattedBudgetEdit.value = props.project.total_budget ? new Intl.NumberFormat('id-ID').format(props.project.total_budget) : '';
     showBudgetEditModal.value = true;
 };
 
@@ -306,8 +343,16 @@ const submitBudgetUpdate = () => {
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Total Anggaran (IDR)</label>
-                        <input type="number" step="0.01" v-model="budgetForm.total_budget" required
-                               class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-3 text-slate-800 dark:text-slate-100 focus:ring-sage-500 focus:border-sage-500" />
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-xs font-bold text-slate-400 select-none">Rp</span>
+                            <input type="text"
+                                   inputmode="numeric"
+                                   :value="formattedBudgetEdit"
+                                   @input="onBudgetEditInput"
+                                   required
+                                   placeholder="100.000.000"
+                                   class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-3 pl-10 text-slate-800 dark:text-slate-100 focus:ring-sage-500 focus:border-sage-500 text-sm font-medium" />
+                        </div>
                         <p v-if="budgetForm.total_budget" class="text-xs font-semibold text-forest-600 dark:text-forest-400 mt-1">{{ formatCurrency(budgetForm.total_budget) }}</p>
                     </div>
                     <div class="flex justify-end gap-2 mt-4">
