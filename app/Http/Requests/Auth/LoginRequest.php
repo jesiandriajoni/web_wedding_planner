@@ -46,7 +46,17 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'Email atau kata sandi yang Anda masukkan salah.',
+            ]);
+        }
+
+        $user = Auth::user();
+        if ($user && $user->role !== 'admin' && !$user->is_active) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Akun Anda belum diverifikasi/diaktifkan oleh admin. Silakan hubungi admin untuk aktivasi akun.',
             ]);
         }
 

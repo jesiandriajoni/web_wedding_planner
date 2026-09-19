@@ -9,6 +9,7 @@ defineProps({
 });
 
 const showAddModal = ref(false);
+const formattedBudget = ref('');
 
 const formatCurrency = (val) =>
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val || 0);
@@ -22,13 +23,52 @@ const projectForm = useForm({
     pengantin_password: ''
 });
 
+const onBudgetInput = (e) => {
+    const el = e.target;
+    const oldVal = el.value;
+    const oldSelection = el.selectionEnd || 0;
+    const digitsBeforeCursor = oldVal.slice(0, oldSelection).replace(/\D/g, '').length;
+
+    const raw = oldVal.replace(/\D/g, '');
+    if (!raw) {
+        formattedBudget.value = '';
+        projectForm.total_budget = '';
+        return;
+    }
+
+    const numericVal = parseInt(raw, 10);
+    projectForm.total_budget = numericVal;
+    const formatted = new Intl.NumberFormat('id-ID').format(numericVal);
+    formattedBudget.value = formatted;
+
+    requestAnimationFrame(() => {
+        let newPos = formatted.length;
+        let digitsCounted = 0;
+        for (let i = 0; i < formatted.length; i++) {
+            if (/\d/.test(formatted[i])) {
+                digitsCounted++;
+            }
+            if (digitsCounted === digitsBeforeCursor) {
+                newPos = i + 1;
+                break;
+            }
+        }
+        el.setSelectionRange(newPos, newPos);
+    });
+};
+
 const openAddModal = () => {
     projectForm.reset();
+    projectForm.clearErrors();
+    formattedBudget.value = '';
     showAddModal.value = true;
 };
 
 const closeAddModal = () => {
     showAddModal.value = false;
+    formattedBudget.value = '';
+    projectForm.reset();
+    projectForm.clearErrors();
 };
 
 const submitProject = () => {
@@ -122,27 +162,56 @@ const submitProject = () => {
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-charcoal-500 mb-1">Nama Pasangan / Judul Project</label>
                         <input type="text" v-model="projectForm.name" required placeholder="Contoh: Romeo & Juliet Wedding"
+                               :class="{'border-rose-400 focus:ring-rose-400': projectForm.errors.name}"
                                class="w-full rounded-xl border border-gold-200 bg-ivory p-3 text-charcoal focus:ring-gold-400 focus:border-gold-500 text-sm shadow-xs" />
+                        <p v-if="projectForm.errors.name" class="mt-1 text-xs text-rose-500 font-semibold">{{ projectForm.errors.name }}</p>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-charcoal-500 mb-1">Tanggal Pernikahan</label>
                         <input type="date" v-model="projectForm.wedding_date" required
+                               :class="{'border-rose-400 focus:ring-rose-400': projectForm.errors.wedding_date}"
                                class="w-full rounded-xl border border-gold-200 bg-ivory p-3 text-charcoal focus:ring-gold-400 focus:border-gold-500 text-sm shadow-xs" />
+                        <p v-if="projectForm.errors.wedding_date" class="mt-1 text-xs text-rose-500 font-semibold">{{ projectForm.errors.wedding_date }}</p>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-charcoal-500 mb-1">Total Anggaran (Rp)</label>
-                        <input type="number" v-model="projectForm.total_budget" required placeholder="100000000"
-                               class="w-full rounded-xl border border-gold-200 bg-ivory p-3 text-charcoal focus:ring-gold-400 focus:border-gold-500 text-sm shadow-xs" />
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-xs font-bold text-charcoal-400 select-none">Rp</span>
+                            <input type="text"
+                                   inputmode="numeric"
+                                   :value="formattedBudget"
+                                   @input="onBudgetInput"
+                                   required
+                                   placeholder="100.000.000"
+                                   :class="{'border-rose-400 focus:ring-rose-400': projectForm.errors.total_budget}"
+                                   class="w-full rounded-xl border border-gold-200 bg-ivory p-3 pl-10 text-charcoal focus:ring-gold-400 focus:border-gold-500 text-sm shadow-xs font-medium" />
+                        </div>
+                        <p v-if="projectForm.errors.total_budget" class="mt-1 text-xs text-rose-500 font-semibold">{{ projectForm.errors.total_budget }}</p>
+                        <p v-else-if="projectForm.total_budget" class="text-xs font-semibold text-gold-700 mt-1">
+                            {{ formatCurrency(projectForm.total_budget) }}
+                        </p>
                     </div>
                     <div class="border-t border-gold-100 pt-3">
                         <p class="text-xs font-bold text-gold-700 uppercase tracking-wider mb-2">Akun Calon Pengantin (Opsional)</p>
                         <div class="flex flex-col gap-3">
-                            <input type="text" v-model="projectForm.pengantin_name" placeholder="Nama Akun Pengantin"
-                                   class="w-full rounded-xl border border-gold-200 bg-ivory p-2.5 text-charcoal focus:ring-gold-400 focus:border-gold-500 text-sm shadow-xs" />
-                            <input type="email" v-model="projectForm.pengantin_email" placeholder="Email Pengantin"
-                                   class="w-full rounded-xl border border-gold-200 bg-ivory p-2.5 text-charcoal focus:ring-gold-400 focus:border-gold-500 text-sm shadow-xs" />
-                            <input type="password" v-model="projectForm.pengantin_password" placeholder="Password Pengantin"
-                                   class="w-full rounded-xl border border-gold-200 bg-ivory p-2.5 text-charcoal focus:ring-gold-400 focus:border-gold-500 text-sm shadow-xs" />
+                            <div>
+                                <input type="text" v-model="projectForm.pengantin_name" placeholder="Nama Akun Pengantin"
+                                       :class="{'border-rose-400 focus:ring-rose-400': projectForm.errors.pengantin_name}"
+                                       class="w-full rounded-xl border border-gold-200 bg-ivory p-2.5 text-charcoal focus:ring-gold-400 focus:border-gold-500 text-sm shadow-xs" />
+                                <p v-if="projectForm.errors.pengantin_name" class="mt-1 text-xs text-rose-500 font-semibold">{{ projectForm.errors.pengantin_name }}</p>
+                            </div>
+                            <div>
+                                <input type="email" v-model="projectForm.pengantin_email" placeholder="Email Pengantin"
+                                       :class="{'border-rose-400 focus:ring-rose-400': projectForm.errors.pengantin_email}"
+                                       class="w-full rounded-xl border border-gold-200 bg-ivory p-2.5 text-charcoal focus:ring-gold-400 focus:border-gold-500 text-sm shadow-xs" />
+                                <p v-if="projectForm.errors.pengantin_email" class="mt-1 text-xs text-rose-500 font-semibold">{{ projectForm.errors.pengantin_email }}</p>
+                            </div>
+                            <div>
+                                <input type="password" v-model="projectForm.pengantin_password" placeholder="Password Pengantin (Min. 8 Karakter)"
+                                       :class="{'border-rose-400 focus:ring-rose-400': projectForm.errors.pengantin_password}"
+                                       class="w-full rounded-xl border border-gold-200 bg-ivory p-2.5 text-charcoal focus:ring-gold-400 focus:border-gold-500 text-sm shadow-xs" />
+                                <p v-if="projectForm.errors.pengantin_password" class="mt-1 text-xs text-rose-500 font-semibold">{{ projectForm.errors.pengantin_password }}</p>
+                            </div>
                         </div>
                     </div>
                     <div class="flex justify-end gap-2 mt-4 pt-2 border-t border-gold-100">

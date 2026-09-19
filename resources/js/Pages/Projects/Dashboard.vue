@@ -33,16 +33,20 @@ const budgetPercentage = computed(() => {
 });
 
 onMounted(() => {
-    window.Echo.private(`projects.${props.project.id}`)
-        .listen('.dashboard.updated', () => {
-            router.reload({
-                only: ['project', 'total_checklists', 'done_checklists', 'progress', 'spent_budget', 'upcoming_tasks']
+    if (window.Echo) {
+        window.Echo.private(`projects.${props.project.id}`)
+            .listen('.dashboard.updated', () => {
+                router.reload({
+                    only: ['project', 'total_checklists', 'done_checklists', 'progress', 'spent_budget', 'upcoming_tasks']
+                });
             });
-        });
+    }
 });
 
 onUnmounted(() => {
-    window.Echo.leave(`projects.${props.project.id}`);
+    if (window.Echo) {
+        window.Echo.leave(`projects.${props.project.id}`);
+    }
 });
 </script>
 

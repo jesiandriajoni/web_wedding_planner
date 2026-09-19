@@ -13,6 +13,11 @@
 
         <!-- Scripts -->
         @routes
+        <script type="text/javascript">
+            if (typeof Ziggy !== 'undefined') {
+                window.Ziggy = Ziggy;
+            }
+        </script>
         @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
         @inertiaHead
     </head>
