@@ -1,0 +1,10 @@
+services:
+  wedding-app:
+    build: .
+    container_name: wedding-planner-app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8088:80"
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./.env:/var/www/html/.env
