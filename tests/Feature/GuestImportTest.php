@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Project;
 use App\Models\Guest;
+use App\Models\Project;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-use OpenSpout\Writer\XLSX\Writer as XlsxWriter;
 use OpenSpout\Common\Entity\Row;
+use OpenSpout\Writer\XLSX\Writer as XlsxWriter;
 use Tests\TestCase;
 
 class GuestImportTest extends TestCase
@@ -16,6 +16,7 @@ class GuestImportTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected Project $project;
 
     protected function setUp(): void
@@ -63,9 +64,9 @@ class GuestImportTest extends TestCase
         $this->actingAs($this->user);
 
         $csvContent = "Nama Tamu,Pihak,Pax\n"
-            . "Andi Pratama,pria,2\n"
-            . "Bella Safitri,wanita,3\n"
-            . "Keluarga Besar Hartono,bersama,5\n";
+            ."Andi Pratama,pria,2\n"
+            ."Bella Safitri,wanita,3\n"
+            ."Keluarga Besar Hartono,bersama,5\n";
 
         $file = UploadedFile::fake()->createWithContent('guests.csv', $csvContent);
 
@@ -105,8 +106,8 @@ class GuestImportTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $tempPath = tempnam(sys_get_temp_dir(), 'test_guest_') . '.xlsx';
-        $writer = new XlsxWriter();
+        $tempPath = tempnam(sys_get_temp_dir(), 'test_guest_').'.xlsx';
+        $writer = new XlsxWriter;
         $writer->openToFile($tempPath);
         $writer->addRow(Row::fromValues(['Nama Tamu', 'Pihak', 'Jumlah Pax']));
         $writer->addRow(Row::fromValues(['Citra Kirana', 'wanita', 2]));
@@ -147,7 +148,7 @@ class GuestImportTest extends TestCase
 
         // No side, no pax specified
         $csvContent = "Nama Tamu,Pihak,Pax\n"
-            . "Eko Patrio,,\n";
+            ."Eko Patrio,,\n";
 
         $file = UploadedFile::fake()->createWithContent('guests.csv', $csvContent);
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class PublicInvitationController extends Controller
@@ -47,11 +48,11 @@ class PublicInvitationController extends Controller
                 'guest_book' => $guestBook,
                 'rundown' => $rundown,
                 'all_guests' => $allGuests,
-            ]
+            ],
         ]);
     }
 
-    public function rsvp(\Illuminate\Http\Request $request, $slug)
+    public function rsvp(Request $request, $slug)
     {
         $project = Project::where('slug', $slug)->firstOrFail();
 

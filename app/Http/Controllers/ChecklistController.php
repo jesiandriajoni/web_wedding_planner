@@ -11,7 +11,7 @@ class ChecklistController extends Controller
 {
     private function authorizeMember(Project $project): void
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
     }

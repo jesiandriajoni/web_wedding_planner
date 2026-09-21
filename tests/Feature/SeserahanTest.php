@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Project;
 use App\Models\SeserahanItem;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -18,7 +18,7 @@ class SeserahanTest extends TestCase
             'name' => 'Rose Wedding',
             'slug' => 'rose-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
 
         $response = $this->get("/projects/{$project->id}/seserahan");
@@ -32,7 +32,7 @@ class SeserahanTest extends TestCase
             'name' => 'Rose Wedding',
             'slug' => 'rose-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
         $project->users()->attach($user->id, ['role' => 'wo']);
 
@@ -42,7 +42,7 @@ class SeserahanTest extends TestCase
         $response1 = $this->post("/projects/{$project->id}/seserahan", [
             'name' => 'Cincin Kawin',
             'status' => 'pending',
-            'tracking_url' => 'javascript:alert(1)'
+            'tracking_url' => 'javascript:alert(1)',
         ]);
         $response1->assertSessionHasErrors(['tracking_url']);
 
@@ -50,7 +50,7 @@ class SeserahanTest extends TestCase
         $response2 = $this->post("/projects/{$project->id}/seserahan", [
             'name' => 'Cincin Kawin',
             'status' => 'completed_state',
-            'tracking_url' => 'https://jne.co.id/tracking/123'
+            'tracking_url' => 'https://jne.co.id/tracking/123',
         ]);
         $response2->assertSessionHasErrors(['status']);
     }
@@ -62,7 +62,7 @@ class SeserahanTest extends TestCase
             'name' => 'Rose Wedding',
             'slug' => 'rose-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
         $project->users()->attach($user->id, ['role' => 'wo']);
 
@@ -72,7 +72,7 @@ class SeserahanTest extends TestCase
         $response = $this->post("/projects/{$project->id}/seserahan", [
             'name' => 'Tas Kulit',
             'status' => 'pending',
-            'tracking_url' => 'https://jne.co.id/tracking/123'
+            'tracking_url' => 'https://jne.co.id/tracking/123',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('seserahan_items', ['item_name' => 'Tas Kulit', 'status' => 'pending']);
@@ -83,7 +83,7 @@ class SeserahanTest extends TestCase
         $responseUp = $this->put("/projects/{$project->id}/seserahan/{$item->id}", [
             'name' => 'Tas Kulit Mewah',
             'status' => 'purchased',
-            'tracking_url' => 'https://jne.co.id/tracking/123456'
+            'tracking_url' => 'https://jne.co.id/tracking/123456',
         ]);
         $responseUp->assertRedirect();
         $this->assertDatabaseHas('seserahan_items', ['id' => $item->id, 'item_name' => 'Tas Kulit Mewah', 'status' => 'purchased']);

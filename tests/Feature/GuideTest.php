@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,7 +17,7 @@ class GuideTest extends TestCase
             'name' => 'Rose Wedding',
             'slug' => 'rose-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
 
         $response = $this->get("/projects/{$project->id}/guide");
@@ -31,7 +31,7 @@ class GuideTest extends TestCase
             'name' => 'Rose Wedding',
             'slug' => 'rose-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
         $project->users()->attach($user->id, ['role' => 'pengantin']);
 

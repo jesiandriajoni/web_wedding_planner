@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Project;
+use App\Models\User;
 use App\Models\Vendor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -23,7 +23,7 @@ class VendorTest extends TestCase
             'name' => 'Rose Wedding',
             'slug' => 'rose-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
         $project->users()->attach($user->id, ['role' => 'pengantin']);
 
@@ -37,16 +37,16 @@ class VendorTest extends TestCase
             'category' => 'Dekorasi',
             'contact' => '08123',
             'package_price' => 15000000.00,
-            'mou' => $file
+            'mou' => $file,
         ]);
 
         $response->assertRedirect();
-        
+
         $vendor = Vendor::where('name', 'Vibrant Decor')->first();
         $this->assertNotNull($vendor);
-        $this->assertEquals(15000000.00, (float)$vendor->package_price);
+        $this->assertEquals(15000000.00, (float) $vendor->package_price);
         $this->assertNotNull($vendor->mou_path);
-        
+
         // Assert file exists in storage
         Storage::disk('public')->assertExists($vendor->mou_path);
 
@@ -57,7 +57,7 @@ class VendorTest extends TestCase
             'category' => 'Music',
             'contact' => '08123',
             'package_price' => 5000000.00,
-            'mou' => $maliciousFile
+            'mou' => $maliciousFile,
         ]);
         $responseBad->assertSessionHasErrors(['mou']);
 

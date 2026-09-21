@@ -3,7 +3,6 @@
 namespace App\Events;
 
 use App\Models\Project;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
@@ -15,11 +14,17 @@ class DashboardUpdated implements ShouldBroadcastNow
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $projectId;
+
     public $total_checklists;
+
     public $done_checklists;
+
     public $progress;
+
     public $spent_budget;
+
     public $upcoming_tasks;
+
     public $total_budget;
 
     public function __construct(Project $project)
@@ -51,7 +56,7 @@ class DashboardUpdated implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('projects.' . $this->projectId),
+            new PrivateChannel('projects.'.$this->projectId),
         ];
     }
 

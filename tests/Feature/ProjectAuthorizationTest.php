@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -26,7 +26,7 @@ class ProjectAuthorizationTest extends TestCase
             'name' => 'Alice & Bob Wedding',
             'slug' => 'alice-bob-wedding',
             'wedding_date' => '2026-08-08',
-            'total_budget' => 40000000.00
+            'total_budget' => 40000000.00,
         ]);
 
         $project->users()->attach($userB->id, ['role' => 'pengantin']);
@@ -44,7 +44,7 @@ class ProjectAuthorizationTest extends TestCase
             'name' => 'Alice & Bob Wedding',
             'slug' => 'alice-bob-wedding',
             'wedding_date' => '2026-08-08',
-            'total_budget' => 40000000.00
+            'total_budget' => 40000000.00,
         ]);
 
         $project->users()->attach($user->id, ['role' => 'pengantin']);

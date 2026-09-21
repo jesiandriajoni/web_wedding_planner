@@ -11,7 +11,7 @@ class InvitationController extends Controller
 {
     public function edit(Project $project)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -22,7 +22,7 @@ class InvitationController extends Controller
 
     public function update(Request $request, Project $project)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -57,7 +57,7 @@ class InvitationController extends Controller
         $photos = $kept;
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $file) {
-                $photos[] = $file->store('invitations/' . $project->id, 'public');
+                $photos[] = $file->store('invitations/'.$project->id, 'public');
             }
         }
         $photos = array_slice($photos, 0, 10);

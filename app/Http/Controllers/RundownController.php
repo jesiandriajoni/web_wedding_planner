@@ -4,16 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\Rundown;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Inertia\Inertia;
 
 class RundownController extends Controller
 {
     public function index(Project $project)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -21,13 +21,13 @@ class RundownController extends Controller
 
         return Inertia::render('Projects/Rundowns', [
             'project' => $project,
-            'rundowns' => $rundowns
+            'rundowns' => $rundowns,
         ]);
     }
 
     public function store(Request $request, Project $project)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -50,7 +50,7 @@ class RundownController extends Controller
 
     public function update(Request $request, Project $project, Rundown $rundown)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -73,7 +73,7 @@ class RundownController extends Controller
 
     public function destroy(Project $project, Rundown $rundown)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -84,13 +84,13 @@ class RundownController extends Controller
 
     public function exportPdf(Project $project)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
         // Ensure temporary folder exists for dompdf write stability
         $tempDir = storage_path('app/temp');
-        if (!File::exists($tempDir)) {
+        if (! File::exists($tempDir)) {
             File::makeDirectory($tempDir, 0755, true, true);
         }
 
@@ -99,11 +99,11 @@ class RundownController extends Controller
         // Simple styled HTML for PDF render
         $html = view('pdf.rundown', [
             'project' => $project,
-            'rundowns' => $rundowns
+            'rundowns' => $rundowns,
         ])->render();
 
         $pdf = Pdf::loadHTML($html);
-        
+
         return $pdf->download("Rundown-Pernikahan-{$project->slug}.pdf");
     }
 }

@@ -26,3 +26,4 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 powershell.cmd
+docker-compose.override.yml

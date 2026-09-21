@@ -11,7 +11,7 @@ class SeserahanController extends Controller
 {
     public function index(Project $project)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -19,13 +19,13 @@ class SeserahanController extends Controller
 
         return Inertia::render('Projects/Seserahan', [
             'project' => $project,
-            'items' => $items
+            'items' => $items,
         ]);
     }
 
     public function store(Request $request, Project $project)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -46,7 +46,7 @@ class SeserahanController extends Controller
 
     public function update(Request $request, Project $project, SeserahanItem $seserahan)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -67,7 +67,7 @@ class SeserahanController extends Controller
 
     public function destroy(Project $project, SeserahanItem $seserahan)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 

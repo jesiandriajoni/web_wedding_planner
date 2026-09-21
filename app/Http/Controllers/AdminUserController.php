@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class AdminUserController extends Controller
@@ -17,7 +16,7 @@ class AdminUserController extends Controller
         $users = User::where('role', 'pengantin')->latest()->get();
 
         return Inertia::render('Admin/Users', [
-            'users' => $users
+            'users' => $users,
         ]);
     }
 
@@ -28,7 +27,7 @@ class AdminUserController extends Controller
         }
 
         $user->update([
-            'is_active' => !$user->is_active
+            'is_active' => ! $user->is_active,
         ]);
 
         $statusText = $user->is_active ? 'diaktifkan' : 'dinonaktifkan';

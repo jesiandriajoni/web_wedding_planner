@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Admin Wedding',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
+                'is_active' => true,
+                'email_verified_at' => now(),
             ]
         );
 
@@ -34,6 +36,8 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Pengantin User',
                 'password' => Hash::make('password'),
                 'role' => 'pengantin',
+                'is_active' => true,
+                'email_verified_at' => now(),
             ]
         );
 
@@ -51,9 +55,8 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        if (!$project->users()->where('user_id', $pengantin->id)->exists()) {
+        if (! $project->users()->where('user_id', $pengantin->id)->exists()) {
             $project->users()->attach($pengantin->id, ['role' => 'pengantin']);
         }
     }
 }
-

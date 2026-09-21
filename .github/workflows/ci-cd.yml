@@ -1,0 +1,221 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - 'fix/**'
+  pull_request:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Continuous Integration (Lint, Test, Asset Build)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_sqlite, sqlite3, bcmath, gd, zip
+          coverage: none
+
+      - name: Cache Composer Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Copy Environment Config
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+      - name: Install Composer Dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Strict Code Style Check (Laravel Pint)
+        run: ./vendor/bin/pint --test
+
+      - name: Generate App Encryption Key
+        run: php artisan key:generate
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Frontend Dependencies & Build Assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Run Test Suite (PHPUnit)
+        run: php artisan test
+
+      - name: Telegram Alert on CI Failure
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            🚨 *[CI Failure] Web Wedding Planner*
+            *Stage*: Lint & Test Suite
+            *Branch*: `${{ github.ref_name }}`
+            *Commit*: `${{ github.sha }}`
+            *Triggered By*: ${{ github.actor }}
+            *Details*: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  build-and-push:
+    name: Build & Push GHCR Container
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Telegram Alert on Build Failure
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            🚨 *[GHCR Build Failure] Web Wedding Planner*
+            *Stage*: Docker Buildx & GHCR Push
+            *Commit*: `${{ github.sha }}`
+            *Details*: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  deploy:
+    name: Continuous Deployment (VPS Production)
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_REPO: ghcr.io/${{ github.repository }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          envs: GITHUB_TOKEN,GITHUB_ACTOR,IMAGE_TAG,IMAGE_REPO
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd /home/voldemort/services/web_wedding_planner
+
+            echo "==> Step 1: Ephemeral GHCR Authentication"
+            echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+
+            echo "==> Step 2: Snapshot Current Running Container Image"
+            CURRENT_IMAGE_ID=$(docker inspect --format '{{.Image}}' wedding-planner-app 2>/dev/null || echo "")
+            if [ -n "$CURRENT_IMAGE_ID" ]; then
+              echo "Snapshotting active image ($CURRENT_IMAGE_ID) as wedding-planner-app:rollback-backup"
+              docker tag "$CURRENT_IMAGE_ID" wedding-planner-app:rollback-backup
+            fi
+
+            echo "==> Step 3: Pull Target Image from GHCR"
+            TARGET_IMAGE="${IMAGE_REPO}:${IMAGE_TAG}"
+            echo "Pulling $TARGET_IMAGE..."
+            docker pull "$TARGET_IMAGE"
+
+            echo "==> Step 4: Sync Repository Code"
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "==> Step 5: Start Container with New Image"
+            export IMAGE_TAG="$IMAGE_TAG"
+            docker compose up -d --no-build
+
+            echo "==> Step 6: Non-Breaking Migrations & Cache Reset"
+            docker exec wedding-planner-app php artisan migrate --force
+            docker exec wedding-planner-app php artisan optimize:clear
+
+            echo "==> Step 7: Fast Fail-Safe Health Probe (15s Window)"
+            HEALTHY=false
+            for i in 1 2 3 4 5; do
+              if curl -f -s -I http://127.0.0.1:8088/login | grep -qE "HTTP/[12](\.[0-9])? (200|302)"; then
+                echo "Health probe #$i PASSED."
+                HEALTHY=true
+                break
+              fi
+              echo "Health probe #$i waiting... retrying in 3s"
+              sleep 3
+            done
+
+            if [ "$HEALTHY" != "true" ]; then
+              echo "FATAL: Health check failed! Triggering automatic self-healing rollback..."
+              if docker image inspect wedding-planner-app:rollback-backup >/dev/null 2>&1; then
+                echo "Reverting container to snapshot: wedding-planner-app:rollback-backup"
+                docker tag wedding-planner-app:rollback-backup "${IMAGE_REPO}:${IMAGE_TAG}"
+                docker compose up -d --no-build
+                echo "Rollback restored successfully."
+              fi
+              exit 1
+            fi
+
+            echo "Cleaning up backup tag..."
+            docker rmi wedding-planner-app:rollback-backup 2>/dev/null || true
+            echo "VPS Deployment finalized successfully."
+
+      - name: Post-Deployment Smoke Test
+        run: |
+          echo "Verifying live endpoint status and HTTPS scheme..."
+          curl --retry 5 --retry-delay 3 --retry-all-errors -f -s -I https://wedding-plan.portojssi.net/login | grep -E "HTTP/[12](\.[0-9])? 200"
+          echo "Smoke test passed successfully."
+
+      - name: Telegram Alert on Deployment Failure
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            🚨 *[DEPLOYMENT FAILURE] Web Wedding Planner*
+            *Stage*: VPS Production Deployment & Health Probe
+            *Commit*: `${{ github.sha }}`
+            *Status*: Auto-Rollback Executed / Check Immediately
+            *Details*: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Project;
 use App\Models\Guest;
+use App\Models\Project;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -18,7 +18,7 @@ class GuestTest extends TestCase
             'name' => 'Rose Wedding',
             'slug' => 'rose-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
 
         $response = $this->get("/projects/{$project->id}/guests");
@@ -32,7 +32,7 @@ class GuestTest extends TestCase
             'name' => 'Rose Wedding',
             'slug' => 'rose-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
         $project->users()->attach($user->id, ['role' => 'pengantin']);
 
@@ -43,7 +43,7 @@ class GuestTest extends TestCase
             'name' => 'Ahmad',
             'side' => 'pria',
             'rsvp' => 'pending',
-            'pax' => 2
+            'pax' => 2,
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('guests', ['name' => 'Ahmad', 'side' => 'pria', 'pax' => 2]);
@@ -55,7 +55,7 @@ class GuestTest extends TestCase
             'name' => 'Ahmad Fauzi',
             'side' => 'bersama',
             'rsvp' => 'pending',
-            'pax' => 4
+            'pax' => 4,
         ]);
         $responseUp->assertRedirect();
         $this->assertDatabaseHas('guests', ['id' => $guest->id, 'name' => 'Ahmad Fauzi', 'side' => 'bersama', 'pax' => 4]);
@@ -72,7 +72,7 @@ class GuestTest extends TestCase
             'name' => 'Rose Wedding',
             'slug' => 'rose-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
 
         $guest = Guest::create([
@@ -80,7 +80,7 @@ class GuestTest extends TestCase
             'name' => 'Ahmad',
             'side' => 'pria',
             'rsvp' => 'pending',
-            'pax' => 2
+            'pax' => 2,
         ]);
 
         // Submit RSVP publicly
@@ -91,7 +91,7 @@ class GuestTest extends TestCase
             'guest_book_message' => 'Happy wedding!',
             // Attemped mass assignment: trying to change side or name
             'side' => 'wanita',
-            'name' => 'Hacker Name'
+            'name' => 'Hacker Name',
         ]);
 
         $response->assertRedirect();
@@ -100,7 +100,7 @@ class GuestTest extends TestCase
         $this->assertEquals('hadir', $guest->rsvp);
         $this->assertEquals(3, $guest->pax);
         $this->assertEquals('Happy wedding!', $guest->guest_book_message);
-        
+
         // Assert malicious inputs were blocked and kept original values
         $this->assertEquals('pria', $guest->side);
         $this->assertEquals('Ahmad', $guest->name);
