@@ -21,17 +21,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install Frontend Dependencies & Build Assets
-        run: |
-          npm ci
-          npm run build
-
       - name: Setup PHP 8.4
         uses: shivammathur/setup-php@v2
         with:
@@ -47,6 +36,17 @@ jobs:
 
       - name: Generate App Encryption Key
         run: php artisan key:generate
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Frontend Dependencies & Build Assets
+        run: |
+          npm ci
+          npm run build
 
       - name: Run Test Suite (PHPUnit)
         run: php artisan test
