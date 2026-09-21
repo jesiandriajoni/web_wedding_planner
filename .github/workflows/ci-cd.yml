@@ -131,17 +131,17 @@ jobs:
     steps:
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_REPO: ghcr.io/${{ github.repository }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           envs: GITHUB_TOKEN,GITHUB_ACTOR,IMAGE_TAG,IMAGE_REPO
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            GITHUB_ACTOR: ${{ github.actor }}
-            IMAGE_TAG: ${{ github.sha }}
-            IMAGE_REPO: ghcr.io/${{ github.repository }}
           script_stop: true
           script: |
             set -euo pipefail
