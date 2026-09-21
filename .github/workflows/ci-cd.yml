@@ -1,0 +1,85 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - 'fix/**'
+  pull_request:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Continuous Integration (Lint, Test, Docker Build)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Frontend Dependencies & Build Assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_sqlite, sqlite3, bcmath, gd, zip
+          coverage: none
+
+      - name: Copy Environment Config
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+      - name: Install Composer Dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Generate App Encryption Key
+        run: php artisan key:generate
+
+      - name: Run Test Suite (PHPUnit)
+        run: php artisan test
+
+      - name: Validate Docker Container Build
+        run: docker build -t wedding-planner:ci-test .
+
+  deploy:
+    name: Continuous Deployment (VPS Production)
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script_stop: true
+          script: |
+            cd /home/voldemort/services/web_wedding_planner
+            git fetch origin main
+            git reset --hard origin/main
+            docker compose build
+            docker compose up -d
+            docker exec wedding-planner-app php artisan migrate --force
+            docker exec wedding-planner-app php artisan optimize:clear
+
+      - name: Post-Deployment Smoke Test
+        run: |
+          echo "Verifying live endpoint status and HTTPS scheme..."
+          curl --retry 5 --retry-delay 3 --retry-all-errors -f -s -I https://wedding-plan.portojssi.net/login | grep -E "HTTP/[12](\.[0-9])? 200"
+          echo "Smoke test passed successfully."
