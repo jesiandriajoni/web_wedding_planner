@@ -1,5 +1,6 @@
 services:
   wedding-app:
+    image: ghcr.io/jesiandriajoni/web_wedding_planner:${IMAGE_TAG:-latest}
     build: .
     container_name: wedding-planner-app
     restart: unless-stopped
