@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Admin Wedding',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
+                'is_active' => true,
+                'email_verified_at' => now(),
             ]
         );
 
@@ -34,6 +36,8 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Pengantin User',
                 'password' => Hash::make('password'),
                 'role' => 'pengantin',
+                'is_active' => true,
+                'email_verified_at' => now(),
             ]
         );
 
