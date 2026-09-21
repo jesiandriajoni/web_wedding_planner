@@ -61,7 +61,7 @@ class ProjectController extends Controller
         $originalSlug = $slug;
         $count = 1;
         while (Project::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $count;
+            $slug = $originalSlug.'-'.$count;
             $count++;
         }
 
@@ -91,20 +91,20 @@ class ProjectController extends Controller
     public function show(Project $project)
     {
         // Enforce member check
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
         $project->load(['users', 'checklists', 'guests', 'vendors', 'rundowns', 'seserahanItems']);
 
         return Inertia::render('Projects/Show', [
-            'project' => $project
+            'project' => $project,
         ]);
     }
 
     public function addMember(Request $request, Project $project)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -126,7 +126,7 @@ class ProjectController extends Controller
 
     public function update(Request $request, Project $project)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 

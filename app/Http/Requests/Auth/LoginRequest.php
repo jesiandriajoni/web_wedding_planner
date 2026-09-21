@@ -51,7 +51,7 @@ class LoginRequest extends FormRequest
         }
 
         $user = Auth::user();
-        if ($user && $user->role !== 'admin' && !$user->is_active) {
+        if ($user && $user->role !== 'admin' && ! $user->is_active) {
             Auth::logout();
             RateLimiter::hit($this->throttleKey());
 

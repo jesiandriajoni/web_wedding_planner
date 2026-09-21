@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\DashboardUpdated;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,11 +18,11 @@ class Checklist extends Model
     protected static function booted()
     {
         static::saved(function ($checklist) {
-            event(new \App\Events\DashboardUpdated($checklist->project));
+            event(new DashboardUpdated($checklist->project));
         });
 
         static::deleted(function ($checklist) {
-            event(new \App\Events\DashboardUpdated($checklist->project));
+            event(new DashboardUpdated($checklist->project));
         });
     }
 }

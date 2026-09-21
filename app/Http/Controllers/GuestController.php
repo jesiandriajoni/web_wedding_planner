@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Project;
 use App\Models\Guest;
+use App\Models\Project;
 use App\Services\GuestImportService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,7 +12,7 @@ class GuestController extends Controller
 {
     public function index(Project $project)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -31,7 +31,7 @@ class GuestController extends Controller
 
     public function store(Request $request, Project $project)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -54,7 +54,7 @@ class GuestController extends Controller
 
     public function update(Request $request, Project $project, Guest $guest)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -77,7 +77,7 @@ class GuestController extends Controller
 
     public function destroy(Project $project, Guest $guest)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -88,17 +88,18 @@ class GuestController extends Controller
 
     public function downloadTemplate(Request $request, Project $project, GuestImportService $importService)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
         $format = $request->query('format', 'xlsx') === 'csv' ? 'csv' : 'xlsx';
+
         return $importService->downloadTemplate($format);
     }
 
     public function import(Request $request, Project $project, GuestImportService $importService)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 

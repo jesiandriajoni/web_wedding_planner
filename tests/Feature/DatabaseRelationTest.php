@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Project;
 use App\Models\Checklist;
 use App\Models\Guest;
-use App\Models\Vendor;
+use App\Models\Project;
 use App\Models\Rundown;
 use App\Models\SeserahanItem;
+use App\Models\User;
+use App\Models\Vendor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -25,7 +25,7 @@ class DatabaseRelationTest extends TestCase
             'name' => 'John & Doe Wedding',
             'slug' => 'john-doe-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
 
         // Connect user with role
@@ -36,7 +36,7 @@ class DatabaseRelationTest extends TestCase
             'project_id' => $project->id,
             'title' => 'Book Venue',
             'status' => 'pending',
-            'assigned_to' => 'WO'
+            'assigned_to' => 'WO',
         ]);
 
         $guest = Guest::create([
@@ -45,7 +45,7 @@ class DatabaseRelationTest extends TestCase
             'side' => 'bersama',
             'rsvp' => 'pending',
             'pax' => 2,
-            'guest_book_message' => 'Congrats!'
+            'guest_book_message' => 'Congrats!',
         ]);
 
         $vendor = Vendor::create([
@@ -56,7 +56,7 @@ class DatabaseRelationTest extends TestCase
             'package_price' => 20000000.00,
             'paid_amount' => 5000000.00,
             'status' => 'dp',
-            'mou_path' => 'contracts/catering.pdf'
+            'mou_path' => 'contracts/catering.pdf',
         ]);
 
         $rundown = Rundown::create([
@@ -64,7 +64,7 @@ class DatabaseRelationTest extends TestCase
             'time' => '08:00',
             'activity' => 'Akad Nikah',
             'description' => 'Holy matrimony',
-            'assigned_to' => 'Penghulu'
+            'assigned_to' => 'Penghulu',
         ]);
 
         $seserahan = SeserahanItem::create([
@@ -72,7 +72,7 @@ class DatabaseRelationTest extends TestCase
             'item_name' => 'Hantaran Emas',
             'status' => 'pending',
             'tracking_url' => null,
-            'price' => 10000000.00
+            'price' => 10000000.00,
         ]);
 
         // Assert relations

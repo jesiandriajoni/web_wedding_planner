@@ -11,7 +11,7 @@ class VendorController extends Controller
 {
     public function index(Project $project)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -19,7 +19,7 @@ class VendorController extends Controller
 
         // Group vendors by category for price comparison list
         $comparison = $vendors->groupBy('category')->map(function ($grouped) {
-            return $grouped->map(fn($v) => [
+            return $grouped->map(fn ($v) => [
                 'name' => $v->name,
                 'price' => (float) $v->package_price,
             ])->sortBy('price')->values();
@@ -28,13 +28,13 @@ class VendorController extends Controller
         return Inertia::render('Projects/Vendors', [
             'project' => $project,
             'vendors' => $vendors,
-            'comparison' => $comparison
+            'comparison' => $comparison,
         ]);
     }
 
     public function store(Request $request, Project $project)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -59,7 +59,7 @@ class VendorController extends Controller
             'package_price' => $request->package_price,
             'paid_amount' => 0.00,
             'status' => 'pending',
-            'mou_path' => $mouPath
+            'mou_path' => $mouPath,
         ]);
 
         return back();
@@ -67,7 +67,7 @@ class VendorController extends Controller
 
     public function update(Request $request, Project $project, Vendor $vendor)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -93,7 +93,7 @@ class VendorController extends Controller
 
     public function destroy(Project $project, Vendor $vendor)
     {
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 

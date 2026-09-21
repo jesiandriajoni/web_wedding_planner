@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Payment;
 use App\Models\Project;
 use App\Models\Vendor;
-use App\Models\Payment;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -13,7 +13,7 @@ class BudgetController extends Controller
     public function show(Project $project)
     {
         // Enforce member check
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -31,14 +31,14 @@ class BudgetController extends Controller
         return Inertia::render('Projects/Budget', [
             'project' => $project,
             'allocations' => $allocations,
-            'vendors' => $vendors
+            'vendors' => $vendors,
         ]);
     }
 
     public function storePayment(Request $request, Project $project, Vendor $vendor)
     {
         // Enforce member check
-        if (!$project->users()->where('user_id', auth()->id())->exists()) {
+        if (! $project->users()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Unauthorized action.');
         }
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\DashboardUpdated;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -64,7 +65,7 @@ class Project extends Model
     protected static function booted()
     {
         static::saved(function ($project) {
-            event(new \App\Events\DashboardUpdated($project));
+            event(new DashboardUpdated($project));
         });
     }
 }

@@ -4,9 +4,11 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -31,7 +33,7 @@ class User extends Authenticatable
         ];
     }
 
-    public function projects(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function projects(): BelongsToMany
     {
         return $this->belongsToMany(Project::class)->withPivot('role')->withTimestamps();
     }
@@ -47,6 +49,6 @@ class User extends Authenticatable
             session()->flash('reset_url', $url);
         }
 
-        $this->notify(new \Illuminate\Auth\Notifications\ResetPassword($token));
+        $this->notify(new ResetPassword($token));
     }
 }

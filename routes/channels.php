@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Project;
 use Illuminate\Support\Facades\Broadcast;
 
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
@@ -7,7 +8,7 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('projects.{projectId}', function ($user, $projectId) {
-    return \App\Models\Project::find($projectId)
+    return Project::find($projectId)
         ?->users()
         ->where('user_id', $user->id)
         ->exists();

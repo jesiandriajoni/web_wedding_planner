@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Guest;
 use App\Models\Project;
 use App\Models\User;
-use App\Models\Guest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;

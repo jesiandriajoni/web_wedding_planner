@@ -51,9 +51,8 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        if (!$project->users()->where('user_id', $pengantin->id)->exists()) {
+        if (! $project->users()->where('user_id', $pengantin->id)->exists()) {
             $project->users()->attach($pengantin->id, ['role' => 'pengantin']);
         }
     }
 }
-

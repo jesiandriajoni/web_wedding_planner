@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Project;
 use App\Models\Rundown;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -18,7 +18,7 @@ class RundownTest extends TestCase
             'name' => 'Rose Wedding',
             'slug' => 'rose-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
 
         $response = $this->get("/projects/{$project->id}/rundowns");
@@ -32,7 +32,7 @@ class RundownTest extends TestCase
             'name' => 'Rose Wedding',
             'slug' => 'rose-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
         $project->users()->attach($user->id, ['role' => 'wo']);
 
@@ -43,7 +43,7 @@ class RundownTest extends TestCase
             'time' => 'pagi-pagi',
             'activity' => 'Akad Nikah',
             'description' => 'Sesi akad',
-            'assigned_to' => 'WO Team'
+            'assigned_to' => 'WO Team',
         ]);
 
         $response->assertSessionHasErrors(['time']);
@@ -56,7 +56,7 @@ class RundownTest extends TestCase
             'name' => 'Rose Wedding',
             'slug' => 'rose-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
         $project->users()->attach($user->id, ['role' => 'wo']);
 
@@ -67,7 +67,7 @@ class RundownTest extends TestCase
             'time' => '08:00',
             'activity' => 'Akad Nikah',
             'description' => 'Sesi akad nikah sakral',
-            'assigned_to' => 'Penghulu'
+            'assigned_to' => 'Penghulu',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('rundowns', ['activity' => 'Akad Nikah', 'time' => '08:00']);
@@ -79,7 +79,7 @@ class RundownTest extends TestCase
             'time' => '08:30',
             'activity' => 'Akad Nikah Selesai',
             'description' => 'Sesi foto bersama',
-            'assigned_to' => 'Photographer'
+            'assigned_to' => 'Photographer',
         ]);
         $responseUp->assertRedirect();
         $this->assertDatabaseHas('rundowns', ['id' => $rundown->id, 'time' => '08:30', 'activity' => 'Akad Nikah Selesai']);

@@ -11,18 +11,18 @@ Route::get('/dashboard', function () {
     return redirect()->route('projects.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\PublicInvitationController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\BudgetController;
-use App\Http\Controllers\VendorController;
+use App\Http\Controllers\ChecklistController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GuestController;
-use App\Http\Controllers\RundownController;
-use App\Http\Controllers\SeserahanController;
 use App\Http\Controllers\GuideController;
 use App\Http\Controllers\InvitationController;
-use App\Http\Controllers\ChecklistController;
-use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\PublicInvitationController;
+use App\Http\Controllers\RundownController;
+use App\Http\Controllers\SeserahanController;
+use App\Http\Controllers\VendorController;
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Project;
 use App\Models\Checklist;
+use App\Models\Project;
+use App\Models\User;
 use App\Models\Vendor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -19,7 +19,7 @@ class DashboardTest extends TestCase
             'name' => 'Test Wedding',
             'slug' => 'test-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
 
         $response = $this->get("/projects/{$project->id}/dashboard");
@@ -33,7 +33,7 @@ class DashboardTest extends TestCase
             'name' => 'Test Wedding',
             'slug' => 'test-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
         $project->users()->attach($user->id, ['role' => 'pengantin']);
 
@@ -57,7 +57,7 @@ class DashboardTest extends TestCase
             'name' => 'Test Wedding',
             'slug' => 'test-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 50000000.00
+            'total_budget' => 50000000.00,
         ]);
         $project->users()->attach($user->id, ['role' => 'pengantin']);
 
@@ -73,7 +73,7 @@ class DashboardTest extends TestCase
             'contact' => '081',
             'package_price' => 10000000.00,
             'paid_amount' => 4000000.00,
-            'status' => 'dp'
+            'status' => 'dp',
         ]);
 
         $this->actingAs($user);

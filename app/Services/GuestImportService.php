@@ -2,15 +2,13 @@
 
 namespace App\Services;
 
-use App\Models\Project;
 use App\Models\Guest;
+use App\Models\Project;
 use Illuminate\Http\UploadedFile;
-use OpenSpout\Reader\XLSX\Reader as XlsxReader;
-use OpenSpout\Reader\CSV\Reader as CsvReader;
-use OpenSpout\Writer\XLSX\Writer as XlsxWriter;
-use OpenSpout\Writer\CSV\Writer as CsvWriter;
 use OpenSpout\Common\Entity\Row;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use OpenSpout\Reader\XLSX\Reader as XlsxReader;
+use OpenSpout\Writer\CSV\Writer as CsvWriter;
+use OpenSpout\Writer\XLSX\Writer as XlsxWriter;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class GuestImportService
@@ -38,7 +36,7 @@ class GuestImportService
         }
 
         // Detect header columns
-        $firstRow = array_map(fn($val) => strtolower(trim((string) $val)), $rows[0]);
+        $firstRow = array_map(fn ($val) => strtolower(trim((string) $val)), $rows[0]);
         $nameIndex = 0;
         $sideIndex = 1;
         $paxIndex = 2;
@@ -103,7 +101,7 @@ class GuestImportService
             ];
         }
 
-        if (!empty($guestsToInsert)) {
+        if (! empty($guestsToInsert)) {
             // Batch insert in chunks of 200 for performance
             foreach (array_chunk($guestsToInsert, 200) as $chunk) {
                 Guest::insert($chunk);
@@ -112,7 +110,7 @@ class GuestImportService
 
         return [
             'count' => count($guestsToInsert),
-            'message' => count($guestsToInsert) . ' data tamu berhasil diimpor.',
+            'message' => count($guestsToInsert).' data tamu berhasil diimpor.',
         ];
     }
 
@@ -121,13 +119,13 @@ class GuestImportService
      */
     public function downloadTemplate(string $format = 'xlsx'): BinaryFileResponse
     {
-        $fileName = 'template_daftar_tamu.' . $format;
-        $tempPath = tempnam(sys_get_temp_dir(), 'guest_tmpl_') . '.' . $format;
+        $fileName = 'template_daftar_tamu.'.$format;
+        $tempPath = tempnam(sys_get_temp_dir(), 'guest_tmpl_').'.'.$format;
 
         if ($format === 'xlsx') {
-            $writer = new XlsxWriter();
+            $writer = new XlsxWriter;
         } else {
-            $writer = new CsvWriter();
+            $writer = new CsvWriter;
         }
 
         $writer->openToFile($tempPath);
@@ -156,7 +154,7 @@ class GuestImportService
     protected function readXlsx(string $filePath): array
     {
         $rows = [];
-        $reader = new XlsxReader();
+        $reader = new XlsxReader;
         $reader->open($filePath);
 
         foreach ($reader->getSheetIterator() as $sheet) {
@@ -167,6 +165,7 @@ class GuestImportService
         }
 
         $reader->close();
+
         return $rows;
     }
 

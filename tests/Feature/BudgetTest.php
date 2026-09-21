@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Project;
-use App\Models\Vendor;
 use App\Models\Payment;
+use App\Models\Project;
+use App\Models\User;
+use App\Models\Vendor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -19,7 +19,7 @@ class BudgetTest extends TestCase
             'name' => 'John Wedding',
             'slug' => 'john-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 100000000.00
+            'total_budget' => 100000000.00,
         ]);
 
         $response = $this->get("/projects/{$project->id}/budget");
@@ -33,7 +33,7 @@ class BudgetTest extends TestCase
             'name' => 'John Wedding',
             'slug' => 'john-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 100000000.00 // 100 million
+            'total_budget' => 100000000.00, // 100 million
         ]);
         $project->users()->attach($user->id, ['role' => 'pengantin']);
 
@@ -58,7 +58,7 @@ class BudgetTest extends TestCase
             'name' => 'John Wedding',
             'slug' => 'john-wedding',
             'wedding_date' => '2026-10-10',
-            'total_budget' => 100000000.00
+            'total_budget' => 100000000.00,
         ]);
         $project->users()->attach($user->id, ['role' => 'pengantin']);
 
@@ -69,7 +69,7 @@ class BudgetTest extends TestCase
             'contact' => '081',
             'package_price' => 30000000.00,
             'paid_amount' => 0.00,
-            'status' => 'pending'
+            'status' => 'pending',
         ]);
 
         $this->actingAs($user);
@@ -77,25 +77,25 @@ class BudgetTest extends TestCase
         // Add DP Payment
         $response1 = $this->post("/projects/{$project->id}/vendors/{$vendor->id}/payments", [
             'amount' => 10000000.00,
-            'notes' => 'DP 1'
+            'notes' => 'DP 1',
         ]);
         $response1->assertRedirect();
 
         // Refresh vendor
         $vendor->refresh();
-        $this->assertEquals(10000000.00, (float)$vendor->paid_amount);
+        $this->assertEquals(10000000.00, (float) $vendor->paid_amount);
         $this->assertEquals('dp', $vendor->status);
 
         // Add Pelunasan Payment
         $response2 = $this->post("/projects/{$project->id}/vendors/{$vendor->id}/payments", [
             'amount' => 20000000.00,
-            'notes' => 'Pelunasan'
+            'notes' => 'Pelunasan',
         ]);
         $response2->assertRedirect();
 
         // Refresh vendor
         $vendor->refresh();
-        $this->assertEquals(30000000.00, (float)$vendor->paid_amount);
+        $this->assertEquals(30000000.00, (float) $vendor->paid_amount);
         $this->assertEquals('paid', $vendor->status);
 
         // Verify database counts
